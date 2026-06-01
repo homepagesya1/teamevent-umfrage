@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Team Event 2026 — Anmeldung</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg:        #0d0e14;
+    --surface:   #14151e;
+    --surface2:  #1c1e2a;
+    --text:      #f0ede8;
+    --muted:     #7a7b8a;
+    --accent:    #c9a87c;
+    --accent-h:  #e2c49a;
+    --border:    rgba(240, 237, 232, 0.08);
+    --border-md: rgba(240, 237, 232, 0.16);
+    --tag-bg:    rgba(201, 168, 124, 0.10);
+    --tag-text:  #c9a87c;
+    --tag-border:rgba(201, 168, 124, 0.22);
+    --ok:        #7dcfa0;
+    --no:        #d98a8a;
+    --display: "Bricolage Grotesque", system-ui, sans-serif;
+    --body: "Hanken Grotesk", system-ui, sans-serif;
+    --radius: 18px;
+    --radius-sm: 12px;
+    --maxw: 720px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    font-family: var(--body);
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    min-height: 100vh;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ambient glows */
+  .glow {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  .glow::before, .glow::after {
+    content: "";
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(90px);
+    opacity: 0.5;
+  }
+  .glow::before {
+    width: 520px; height: 520px;
+    background: radial-gradient(circle, rgba(201,168,124,0.22), transparent 70%);
+    top: -160px; left: 50%; transform: translateX(-50%);
+  }
+  .glow::after {
+    width: 420px; height: 420px;
+    background: radial-gradient(circle, rgba(125,150,207,0.10), transparent 70%);
+    bottom: -120px; right: -80px;
+  }
+
+  canvas#confetti {
+    position: fixed; inset: 0; z-index: 60; pointer-events: none;
+  }
+
+  .wrap {
+    position: relative;
+    z-index: 1;
+    max-width: var(--maxw);
+    margin: 0 auto;
+    padding: 28px 22px 80px;
+  }
+
+  /* ---- header ---- */
+  header.top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 54px;
+  }
+  .brand {
+    display: flex; align-items: center; gap: 10px;
+    font-family: var(--display);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    font-size: 17px;
+  }
+  .brand .spark { color: var(--accent); font-size: 18px; }
+  .greeting-pill {
+    font-size: 13px;
+    color: var(--muted);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 7px 14px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+  .greeting-pill b { color: var(--text); font-weight: 600; }
+
+  /* ---- hero ---- */
+  .hero { text-align: center; margin-bottom: 38px; }
+  .secret-tag {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 12px; font-weight: 600; letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--tag-text);
+    background: var(--tag-bg);
+    border: 1px solid var(--tag-border);
+    padding: 7px 14px;
+    border-radius: 999px;
+    margin-bottom: 24px;
+  }
+  .hero h1 {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: clamp(38px, 8vw, 66px);
+    line-height: 1.02;
+    letter-spacing: -0.03em;
+    margin-bottom: 18px;
+    text-wrap: balance;
+  }
+  .hero h1 .gold { color: var(--accent); font-style: italic; }
+  .hero .lede {
+    color: var(--muted);
+    font-size: clamp(16px, 2.4vw, 19px);
+    max-width: 480px;
+    margin: 0 auto 28px;
+    text-wrap: pretty;
+  }
+
+  .meta {
+    display: flex; flex-wrap: wrap; justify-content: center; gap: 10px;
+    margin-bottom: 30px;
+  }
+  .meta .chip {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 14px; font-weight: 500;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 9px 15px;
+    border-radius: 999px;
+  }
+  .meta .chip svg { width: 15px; height: 15px; color: var(--accent); flex: none; }
+
+  /* countdown */
+  .countdown {
+    display: inline-flex; gap: 8px;
+    margin: 0 auto;
+  }
+  .cd-unit {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 4px 9px;
+    min-width: 70px;
+    text-align: center;
+  }
+  .cd-unit .num {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 30px;
+    line-height: 1;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+  }
+  .cd-unit .lbl {
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em;
+    color: var(--muted); margin-top: 6px;
+  }
+
+  /* ---- form card ---- */
+  .card {
+    background: linear-gradient(180deg, var(--surface), rgba(20,21,30,0.6));
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 30px 28px;
+    box-shadow: 0 24px 60px -28px rgba(0,0,0,0.7);
+    margin-top: 44px;
+  }
+  .card-head { margin-bottom: 22px; }
+  .card-head h2 {
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: 24px;
+    letter-spacing: -0.02em;
+  }
+  .card-head p { color: var(--muted); font-size: 14px; margin-top: 4px; }
+
+  .field { margin-bottom: 22px; }
+  .field:last-of-type { margin-bottom: 0; }
+  label.flabel {
+    display: block;
+    font-size: 14px; font-weight: 600;
+    margin-bottom: 9px;
+  }
+  label.flabel .req { color: var(--accent); margin-left: 3px; }
+  .field .hint { font-size: 12.5px; color: var(--muted); margin-top: -4px; margin-bottom: 9px; }
+
+  input[type="text"], input[type="number"], textarea {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border-md);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-family: var(--body);
+    font-size: 15px;
+    padding: 13px 15px;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  textarea { resize: vertical; min-height: 84px; }
+  input::placeholder, textarea::placeholder { color: var(--muted); }
+  input:focus, textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(201,168,124,0.15);
+  }
+
+  /* attendance toggle */
+  .attend {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+  }
+  .attend-opt {
+    cursor: pointer;
+    border: 1px solid var(--border-md);
+    border-radius: var(--radius-sm);
+    padding: 16px;
+    text-align: center;
+    font-weight: 600; font-size: 15px;
+    transition: all .15s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    background: var(--bg);
+  }
+  .attend-opt:hover { border-color: var(--border-md); background: var(--surface2); }
+  .attend-opt .emo { font-size: 17px; }
+  .attend-opt[data-on="yes"][aria-pressed="true"] {
+    border-color: var(--ok); background: rgba(125,207,160,0.10); color: var(--ok);
+  }
+  .attend-opt[data-on="no"][aria-pressed="true"] {
+    border-color: var(--no); background: rgba(217,138,138,0.10); color: var(--no);
+  }
+
+  /* dynamic question controls */
+  .opt-row { display: flex; flex-direction: column; gap: 9px; }
+  .opt-pill {
+    display: flex; align-items: center; gap: 11px;
+    cursor: pointer;
+    border: 1px solid var(--border-md);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    font-size: 14.5px;
+    transition: all .14s;
+    background: var(--bg);
+  }
+  .opt-pill:hover { background: var(--surface2); }
+  .opt-pill .box {
+    width: 20px; height: 20px; flex: none;
+    border: 1.5px solid var(--border-md);
+    border-radius: 6px;
+    display: grid; place-items: center;
+    transition: all .14s;
+  }
+  .opt-pill[data-type="single"] .box { border-radius: 50%; }
+  .opt-pill .box svg { width: 12px; height: 12px; color: var(--bg); opacity: 0; }
+  .opt-pill.sel { border-color: var(--accent); background: rgba(201,168,124,0.08); }
+  .opt-pill.sel .box { background: var(--accent); border-color: var(--accent); }
+  .opt-pill.sel .box svg { opacity: 1; }
+  .opt-pill input { position: absolute; opacity: 0; pointer-events: none; }
+
+  .reveal {
+    overflow: hidden;
+    transition: max-height .4s ease, opacity .3s ease, margin .3s ease;
+  }
+
+  .divider { height: 1px; background: var(--border); margin: 26px 0; }
+
+  /* submit */
+  .btn {
+    cursor: pointer;
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: 16px;
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 15px 22px;
+    transition: transform .12s, background .15s, box-shadow .15s;
+    display: inline-flex; align-items: center; justify-content: center; gap: 9px;
+  }
+  .btn-primary {
+    width: 100%;
+    background: var(--accent);
+    color: #1a1407;
+    box-shadow: 0 12px 30px -12px rgba(201,168,124,0.6);
+  }
+  .btn-primary:hover { background: var(--accent-h); }
+  .btn-primary:active { transform: translateY(1px); }
+  .btn-primary:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: none; }
+  .btn-ghost {
+    background: transparent; color: var(--text);
+    border: 1px solid var(--border-md);
+  }
+  .btn-ghost:hover { background: var(--surface2); }
+
+  .err-msg {
+    color: var(--no); font-size: 13.5px; margin-top: 12px; text-align: center;
+    min-height: 18px;
+  }
+
+  /* success */
+  .success { text-align: center; padding: 14px 4px; }
+  .success .checkmark {
+    width: 72px; height: 72px; margin: 0 auto 22px;
+    border-radius: 50%;
+    background: rgba(125,207,160,0.12);
+    border: 1px solid rgba(125,207,160,0.4);
+    display: grid; place-items: center;
+  }
+  .success .checkmark svg { width: 34px; height: 34px; color: var(--ok); }
+  .success h2 { font-family: var(--display); font-size: 28px; letter-spacing: -0.02em; margin-bottom: 10px; }
+  .success p { color: var(--muted); max-width: 380px; margin: 0 auto 8px; }
+  .success .summary {
+    text-align: left;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 18px 20px;
+    margin: 24px 0;
+  }
+  .success .summary .row { display: flex; justify-content: space-between; gap: 16px; padding: 7px 0; font-size: 14px; border-bottom: 1px solid var(--border); }
+  .success .summary .row:last-child { border-bottom: none; }
+  .success .summary .row .k { color: var(--muted); }
+  .success .summary .row .v { font-weight: 600; text-align: right; }
+
+  footer.bot {
+    text-align: center; color: var(--muted); font-size: 12.5px;
+    margin-top: 48px;
+  }
+
+  @media (max-width: 560px) {
+    .wrap { padding: 22px 16px 60px; }
+    .card { padding: 24px 18px; }
+    .cd-unit { min-width: 0; flex: 1; }
+    .countdown { display: flex; width: 100%; }
+    .greeting-pill { display: none; }
+  }
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+  <div class="glow"></div>
+  <canvas id="confetti"></canvas>
+
+  <div class="wrap">
+    <header class="top">
+      <div class="brand"><span class="spark">✦</span> Team&nbsp;Event</div>
+      <div class="greeting-pill" id="greeting">Willkommen</div>
+    </header>
+
+    <section class="hero">
+      <span class="secret-tag">✦&nbsp;&nbsp;Top Secret&nbsp;&nbsp;✦</span>
+      <h1>Etwas <span class="gold">Geheimes</span> erwartet uns.</h1>
+      <p class="lede">Was genau wir machen, bleibt eine Überraschung. 🤫 Sag uns nur, ob du dabei bist — den Rest erfährst du später.</p>
+
+      <div class="meta">
+        <span class="chip">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+          20. August 2026
+        </span>
+        <span class="chip">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+          17:00 Uhr
+        </span>
+        <span class="chip">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+          Aarau
+        </span>
+      </div>
+
+      <div class="countdown" id="countdown" aria-label="Countdown bis zum Event">
+        <div class="cd-unit"><div class="num" id="cd-d">–</div><div class="lbl">Tage</div></div>
+        <div class="cd-unit"><div class="num" id="cd-h">–</div><div class="lbl">Std</div></div>
+        <div class="cd-unit"><div class="num" id="cd-m">–</div><div class="lbl">Min</div></div>
+        <div class="cd-unit"><div class="num" id="cd-s">–</div><div class="lbl">Sek</div></div>
+      </div>
+    </section>
+
+    <!-- FORM -->
+    <section class="card" id="formCard">
+      <div class="card-head">
+        <h2>Bist du dabei?</h2>
+        <p>Trag dich kurz ein — dauert keine Minute.</p>
+      </div>
+
+      <form id="surveyForm" novalidate>
+        <div class="field">
+          <label class="flabel" for="name">Dein Name <span class="req">*</span></label>
+          <input type="text" id="name" name="name" placeholder="Vor- und Nachname" autocomplete="name" />
+        </div>
+
+        <div class="field">
+          <label class="flabel">Kommst du? <span class="req">*</span></label>
+          <div class="attend">
+            <div class="attend-opt" data-on="yes" role="button" tabindex="0" aria-pressed="false"><span class="emo">🎉</span> Ja, ich bin dabei!</div>
+            <div class="attend-opt" data-on="no" role="button" tabindex="0" aria-pressed="false"><span class="emo">😢</span> Leider nicht</div>
+          </div>
+        </div>
+
+        <!-- dynamic admin questions injected here -->
+        <div class="reveal" id="dynamicWrap" style="max-height:0; opacity:0;">
+          <div id="dynamicQuestions"></div>
+        </div>
+
+        <div class="field" id="commentField">
+          <label class="flabel" for="comment">Kommentar <span style="color:var(--muted);font-weight:400">(optional)</span></label>
+          <textarea id="comment" name="comment" placeholder="Wünsche, Fragen oder ein Gruss…"></textarea>
+        </div>
+
+        <div class="divider"></div>
+        <button type="submit" class="btn btn-primary" id="submitBtn">Anmeldung abschicken</button>
+        <div class="err-msg" id="errMsg"></div>
+      </form>
+    </section>
+
+    <!-- SUCCESS -->
+    <section class="card hidden" id="successCard">
+      <div class="success">
+        <div class="checkmark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg></div>
+        <h2 id="successTitle">Bis bald! 🎉</h2>
+        <p id="successMsg">Deine Antwort ist gespeichert. Wir freuen uns auf dich!</p>
+        <div class="summary" id="successSummary"></div>
+        <button type="button" class="btn btn-ghost" id="editBtn" style="width:100%">Antwort bearbeiten</button>
+      </div>
+    </section>
+
+    <footer class="bot">✦ &nbsp;Wir freuen uns auf einen unvergesslichen Abend.</footer>
+  </div>
+
+<script>
+(function () {
+  "use strict";
+
+  // ===== EVENT CONFIG (hier Datum/Uhrzeit/Ort anpassen) =====
+  var EVENT_DATE = new Date(2026, 7, 20, 17, 0, 0); // Monat 0-basiert: 7 = August
+
+  var Q_KEY = "teamevent_questions_v1";
+  var R_KEY = "teamevent_responses_v1";
+  var MINE_KEY = "teamevent_my_response_id";
+  var MINE_REC = "teamevent_my_record";
+
+  // ---------- local storage helpers (Fallback ohne Backend) ----------
+  function load(key, fallback) {
+    try { var v = JSON.parse(localStorage.getItem(key)); return v == null ? fallback : v; }
+    catch (e) { return fallback; }
+  }
+  function save(key, val) { localStorage.setItem(key, JSON.stringify(val)); }
+  function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+
+  function defaultQuestions() {
+    return [
+      { id: "seed-abo", type: "single", label: "Welches ÖV-Abo besitzt du?",
+        help: "Damit wir die Anreise besser planen können.",
+        options: ["Kein Abo", "Halbtax", "GA"], required: false },
+      { id: "seed-allergie", type: "multi", label: "Hast du Allergien oder Unverträglichkeiten?",
+        help: "Mehrfachauswahl möglich.",
+        options: ["Keine", "Nüsse", "Laktose", "Gluten", "Vegetarisch", "Vegan"], required: false },
+      { id: "seed-begleit", type: "number", label: "Wie viele Begleitpersonen bringst du mit?",
+        help: "", options: [], required: false }
+    ];
+  }
+
+  // ---------- Store: Cloudflare-KV-Backend mit localStorage-Fallback ----------
+  // Auf Cloudflare Pages liefert /api/* die Pages Functions (KV).
+  // Lokal / ohne Backend wird transparent auf localStorage zurückgegriffen.
+  var Store = {
+    remote: false,
+    init: function () {
+      var self = this;
+      return fetch("/api/questions", { headers: { "Accept": "application/json" } })
+        .then(function (r) {
+          var ct = r.headers.get("content-type") || "";
+          self.remote = r.ok && ct.indexOf("json") >= 0;
+        })
+        .catch(function () { self.remote = false; })
+        .then(function () {
+          if (!self.remote && localStorage.getItem(Q_KEY) === null) save(Q_KEY, defaultQuestions());
+          return self.remote;
+        });
+    },
+    getQuestions: function () {
+      if (this.remote) {
+        return fetch("/api/questions").then(function (r) { return r.ok ? r.json() : []; }).catch(function () { return []; });
+      }
+      return Promise.resolve(load(Q_KEY, defaultQuestions()));
+    },
+    saveResponse: function (rec) {
+      if (this.remote) {
+        return fetch("/api/responses", {
+          method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(rec)
+        }).then(function (r) { if (!r.ok) throw new Error("save failed"); return r.json(); });
+      }
+      var all = load(R_KEY, []);
+      rec.ts = Date.now();
+      var idx = all.findIndex(function (x) { return x.id === rec.id; });
+      if (idx >= 0) all[idx] = rec; else all.push(rec);
+      save(R_KEY, all);
+      return Promise.resolve(rec);
+    }
+  };
+
+  // ---------- greeting ----------
+  (function greet() {
+    var h = new Date().getHours(), g;
+    if (h >= 5 && h < 11) g = "Guten Morgen";
+    else if (h >= 11 && h < 17) g = "Guten Tag";
+    else if (h >= 17 && h < 22) g = "Guten Abend";
+    else g = "Noch wach?";
+    document.getElementById("greeting").innerHTML = "<b>" + g + "</b> 👋";
+  })();
+
+  // ---------- countdown ----------
+  (function countdown() {
+    var dEl = document.getElementById("cd-d"), hEl = document.getElementById("cd-h"),
+        mEl = document.getElementById("cd-m"), sEl = document.getElementById("cd-s");
+    function pad(n) { return (n < 10 ? "0" : "") + n; }
+    function tick() {
+      var diff = EVENT_DATE - new Date();
+      if (diff <= 0) {
+        dEl.textContent = "0"; hEl.textContent = "00"; mEl.textContent = "00"; sEl.textContent = "00";
+        return;
+      }
+      var s = Math.floor(diff / 1000);
+      dEl.textContent = Math.floor(s / 86400);
+      hEl.textContent = pad(Math.floor((s % 86400) / 3600));
+      mEl.textContent = pad(Math.floor((s % 3600) / 60));
+      sEl.textContent = pad(s % 60);
+    }
+    tick();
+    setInterval(tick, 1000);
+  })();
+
+  // ---------- state ----------
+  var attendance = null;          // "yes" | "no"
+  var dynState = {};              // questionId -> value
+  var questions = [];             // wird beim Init geladen
+
+  var dynWrap = document.getElementById("dynamicWrap");
+  var dynQ = document.getElementById("dynamicQuestions");
+
+  // ---------- render dynamic questions ----------
+  function checkSvg() {
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>';
+  }
+
+  function renderQuestions() {
+    dynQ.innerHTML = "";
+    questions.forEach(function (q) {
+      var field = document.createElement("div");
+      field.className = "field";
+      var reqStar = q.required ? ' <span class="req">*</span>' : ' <span style="color:var(--muted);font-weight:400">(optional)</span>';
+      var html = '<label class="flabel">' + escapeHtml(q.label) + reqStar + '</label>';
+      if (q.help) html += '<div class="hint">' + escapeHtml(q.help) + '</div>';
+      field.innerHTML = html;
+
+      if (q.type === "text") {
+        var ta = document.createElement("textarea");
+        ta.placeholder = "Deine Antwort…";
+        ta.addEventListener("input", function () { dynState[q.id] = ta.value; });
+        field.appendChild(ta);
+      } else if (q.type === "number") {
+        var ni = document.createElement("input");
+        ni.type = "number"; ni.min = "0"; ni.placeholder = "0";
+        ni.addEventListener("input", function () { dynState[q.id] = ni.value; });
+        field.appendChild(ni);
+      } else if (q.type === "yesno" || q.type === "single" || q.type === "multi") {
+        var opts = q.type === "yesno" ? ["Ja", "Nein"] : (q.options || []);
+        var row = document.createElement("div");
+        row.className = "opt-row";
+        var multi = q.type === "multi";
+        opts.forEach(function (optText) {
+          var pill = document.createElement("label");
+          pill.className = "opt-pill";
+          pill.setAttribute("data-type", multi ? "multi" : "single");
+          pill.innerHTML = '<span class="box">' + checkSvg() + '</span><span>' + escapeHtml(optText) + '</span>';
+          pill.addEventListener("click", function (e) {
+            e.preventDefault();
+            if (multi) {
+              var cur = dynState[q.id] || [];
+              var i = cur.indexOf(optText);
+              if (i >= 0) { cur.splice(i, 1); pill.classList.remove("sel"); }
+              else { cur.push(optText); pill.classList.add("sel"); }
+              dynState[q.id] = cur;
+            } else {
+              row.querySelectorAll(".opt-pill").forEach(function (p) { p.classList.remove("sel"); });
+              pill.classList.add("sel");
+              dynState[q.id] = optText;
+            }
+          });
+          row.appendChild(pill);
+        });
+        field.appendChild(row);
+      }
+      dynQ.appendChild(field);
+    });
+  }
+
+  function escapeHtml(s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+
+  // ---------- attendance toggle ----------
+  var attendOpts = document.querySelectorAll(".attend-opt");
+  function setAttendance(val) {
+    attendance = val;
+    attendOpts.forEach(function (o) { o.setAttribute("aria-pressed", o.getAttribute("data-on") === val); });
+    // reveal questions only when attending
+    if (val === "yes" && questions.length) {
+      renderQuestions();
+      dynWrap.style.maxHeight = dynQ.scrollHeight + 40 + "px";
+      dynWrap.style.opacity = "1";
+      dynWrap.style.marginBottom = "0";
+    } else {
+      dynWrap.style.maxHeight = "0";
+      dynWrap.style.opacity = "0";
+    }
+  }
+  attendOpts.forEach(function (o) {
+    o.addEventListener("click", function () { setAttendance(o.getAttribute("data-on")); });
+    o.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setAttendance(o.getAttribute("data-on")); }
+    });
+  });
+
+  // ---------- submit ----------
+  var form = document.getElementById("surveyForm");
+  var errMsg = document.getElementById("errMsg");
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    errMsg.textContent = "";
+    var name = document.getElementById("name").value.trim();
+    if (!name) { errMsg.textContent = "Bitte gib deinen Namen ein."; return; }
+    if (!attendance) { errMsg.textContent = "Bitte sag uns, ob du kommst."; return; }
+
+    var answers = {};
+    if (attendance === "yes") {
+      for (var i = 0; i < questions.length; i++) {
+        var q = questions[i];
+        var v = dynState[q.id];
+        var empty = v == null || v === "" || (Array.isArray(v) && v.length === 0);
+        if (q.required && empty) {
+          errMsg.textContent = 'Bitte beantworte: „' + q.label + '“';
+          return;
+        }
+        if (!empty) answers[q.id] = v;
+      }
+    }
+
+    var existingId = localStorage.getItem(MINE_KEY);
+    var record = {
+      id: existingId || uid(),
+      name: name,
+      attending: attendance,
+      comment: document.getElementById("comment").value.trim(),
+      answers: answers,
+      ts: Date.now()
+    };
+    var btn = document.getElementById("submitBtn");
+    btn.disabled = true; btn.textContent = "Wird gespeichert…";
+    Store.saveResponse(record).then(function (saved) {
+      localStorage.setItem(MINE_KEY, saved.id);
+      localStorage.setItem(MINE_REC, JSON.stringify(saved));
+      btn.disabled = false; btn.textContent = "Anmeldung abschicken";
+      showSuccess(saved);
+      if (saved.attending === "yes") fireConfetti();
+    }).catch(function () {
+      btn.disabled = false; btn.textContent = "Anmeldung abschicken";
+      errMsg.textContent = "Speichern fehlgeschlagen. Bitte versuch es nochmal.";
+    });
+  });
+
+  // ---------- success view ----------
+  var formCard = document.getElementById("formCard");
+  var successCard = document.getElementById("successCard");
+
+  function showSuccess(record) {
+    var sum = document.getElementById("successSummary");
+    var rows = '<div class="row"><span class="k">Name</span><span class="v">' + escapeHtml(record.name) + '</span></div>';
+    rows += '<div class="row"><span class="k">Teilnahme</span><span class="v">' + (record.attending === "yes" ? "Ja 🎉" : "Nein") + '</span></div>';
+    if (record.attending === "yes") {
+      questions.forEach(function (q) {
+        if (record.answers[q.id] != null) {
+          var val = record.answers[q.id];
+          if (Array.isArray(val)) val = val.join(", ");
+          rows += '<div class="row"><span class="k">' + escapeHtml(q.label) + '</span><span class="v">' + escapeHtml(val) + '</span></div>';
+        }
+      });
+    }
+    if (record.comment) rows += '<div class="row"><span class="k">Kommentar</span><span class="v">' + escapeHtml(record.comment) + '</span></div>';
+    sum.innerHTML = rows;
+
+    document.getElementById("successTitle").textContent = record.attending === "yes" ? "Bis bald! 🎉" : "Schade!";
+    document.getElementById("successMsg").textContent = record.attending === "yes"
+      ? "Deine Antwort ist gespeichert. Wir freuen uns auf dich!"
+      : "Danke, dass du Bescheid gegeben hast. Vielleicht beim nächsten Mal!";
+
+    formCard.classList.add("hidden");
+    successCard.classList.remove("hidden");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  document.getElementById("editBtn").addEventListener("click", function () {
+    // prefill from saved record (eigene Antwort lokal gemerkt)
+    var rec = load(MINE_REC, null);
+    if (rec) {
+      document.getElementById("name").value = rec.name;
+      document.getElementById("comment").value = rec.comment || "";
+      dynState = {};
+      for (var k in rec.answers) dynState[k] = rec.answers[k];
+      setAttendance(rec.attending);
+      // restore selected pills
+      if (rec.attending === "yes") {
+        setTimeout(function () {
+          questions.forEach(function (q) {
+            var val = rec.answers[q.id];
+            if (val == null) return;
+            var field = dynQ.querySelectorAll(".field")[questions.indexOf(q)];
+            if (!field) return;
+            if (q.type === "text" || q.type === "number") {
+              var inp = field.querySelector("input,textarea"); if (inp) inp.value = val;
+            } else {
+              field.querySelectorAll(".opt-pill").forEach(function (p) {
+                var txt = p.querySelector("span:last-child").textContent;
+                if (Array.isArray(val) ? val.indexOf(txt) >= 0 : val === txt) p.classList.add("sel");
+              });
+            }
+          });
+        }, 10);
+      }
+    }
+    successCard.classList.add("hidden");
+    formCard.classList.remove("hidden");
+  });
+
+  // ---------- confetti ----------
+  function fireConfetti() {
+    var canvas = document.getElementById("confetti");
+    var ctx = canvas.getContext("2d");
+    var W = canvas.width = window.innerWidth;
+    var H = canvas.height = window.innerHeight;
+    var colors = ["#c9a87c", "#e2c49a", "#7dcfa0", "#f0ede8", "#7d96cf"];
+    var parts = [];
+    for (var i = 0; i < 140; i++) {
+      parts.push({
+        x: W / 2 + (Math.random() - 0.5) * 200,
+        y: H / 3,
+        vx: (Math.random() - 0.5) * 14,
+        vy: Math.random() * -16 - 4,
+        size: Math.random() * 7 + 4,
+        color: colors[(Math.random() * colors.length) | 0],
+        rot: Math.random() * 6.28,
+        vr: (Math.random() - 0.5) * 0.4,
+        shape: Math.random() > 0.5 ? "rect" : "circ"
+      });
+    }
+    var frame = 0;
+    function draw() {
+      ctx.clearRect(0, 0, W, H);
+      frame++;
+      var alive = false;
+      parts.forEach(function (p) {
+        p.vy += 0.45; p.x += p.vx; p.y += p.vy; p.vx *= 0.99; p.rot += p.vr;
+        if (p.y < H + 30) alive = true;
+        ctx.save();
+        ctx.translate(p.x, p.y); ctx.rotate(p.rot);
+        ctx.globalAlpha = Math.max(0, 1 - frame / 160);
+        ctx.fillStyle = p.color;
+        if (p.shape === "rect") ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
+        else { ctx.beginPath(); ctx.arc(0, 0, p.size / 2, 0, 6.28); ctx.fill(); }
+        ctx.restore();
+      });
+      if (alive && frame < 200) requestAnimationFrame(draw);
+      else ctx.clearRect(0, 0, W, H);
+    }
+    draw();
+  }
+
+  // init
+  Store.init().then(function () {
+    return Store.getQuestions();
+  }).then(function (qs) {
+    questions = qs || [];
+    renderQuestions();
+  });
+})();
+</script>
+</body>
+</html>

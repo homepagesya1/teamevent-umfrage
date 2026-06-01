@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Admin — Team Event 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg:        #0d0e14;
+    --surface:   #14151e;
+    --surface2:  #1c1e2a;
+    --text:      #f0ede8;
+    --muted:     #7a7b8a;
+    --accent:    #c9a87c;
+    --accent-h:  #e2c49a;
+    --border:    rgba(240, 237, 232, 0.08);
+    --border-md: rgba(240, 237, 232, 0.16);
+    --tag-bg:    rgba(201, 168, 124, 0.10);
+    --tag-text:  #c9a87c;
+    --tag-border:rgba(201, 168, 124, 0.22);
+    --ok:        #7dcfa0;
+    --no:        #d98a8a;
+    --display: "Bricolage Grotesque", system-ui, sans-serif;
+    --body: "Hanken Grotesk", system-ui, sans-serif;
+    --radius: 16px;
+    --radius-sm: 11px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: var(--body);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+  .glow { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+  .glow::before {
+    content: ""; position: absolute; width: 600px; height: 600px; border-radius: 50%;
+    filter: blur(110px); opacity: 0.4;
+    background: radial-gradient(circle, rgba(201,168,124,0.18), transparent 70%);
+    top: -240px; right: -120px;
+  }
+  a { color: inherit; }
+  .hidden { display: none !important; }
+
+  /* ===== LOGIN ===== */
+  .login-wrap {
+    position: relative; z-index: 1;
+    min-height: 100vh; display: grid; place-items: center; padding: 24px;
+  }
+  .login-card {
+    width: 100%; max-width: 380px;
+    background: linear-gradient(180deg, var(--surface), rgba(20,21,30,0.6));
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 34px 30px;
+    box-shadow: 0 30px 70px -30px rgba(0,0,0,0.8);
+    text-align: center;
+  }
+  .login-card .lock {
+    width: 56px; height: 56px; margin: 0 auto 18px; border-radius: 14px;
+    background: var(--tag-bg); border: 1px solid var(--tag-border);
+    display: grid; place-items: center; color: var(--accent);
+  }
+  .login-card .lock svg { width: 26px; height: 26px; }
+  .login-card h1 { font-family: var(--display); font-size: 24px; letter-spacing: -0.02em; margin-bottom: 6px; }
+  .login-card .sub { color: var(--muted); font-size: 14px; margin-bottom: 26px; }
+  .ipt {
+    width: 100%; background: var(--bg); border: 1px solid var(--border-md);
+    border-radius: var(--radius-sm); color: var(--text); font-family: var(--body);
+    font-size: 15px; padding: 13px 15px; margin-bottom: 12px; transition: border-color .15s, box-shadow .15s;
+  }
+  .ipt:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(201,168,124,0.15); }
+  .ipt::placeholder { color: var(--muted); }
+  .btn {
+    cursor: pointer; font-family: var(--display); font-weight: 600; font-size: 15px;
+    border: none; border-radius: var(--radius-sm); padding: 13px 20px;
+    transition: transform .12s, background .15s; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .btn-primary { background: var(--accent); color: #1a1407; }
+  .btn-primary:hover { background: var(--accent-h); }
+  .btn-primary:active { transform: translateY(1px); }
+  .btn-ghost { background: transparent; color: var(--text); border: 1px solid var(--border-md); }
+  .btn-ghost:hover { background: var(--surface2); }
+  .btn-danger { background: rgba(217,138,138,0.12); color: var(--no); border: 1px solid rgba(217,138,138,0.3); }
+  .btn-danger:hover { background: rgba(217,138,138,0.2); }
+  .btn-sm { padding: 8px 13px; font-size: 13px; border-radius: 9px; }
+  .login-err { color: var(--no); font-size: 13px; min-height: 18px; margin-top: 8px; }
+
+  /* ===== APP ===== */
+  .app { position: relative; z-index: 1; max-width: 1080px; margin: 0 auto; padding: 26px 24px 80px; }
+  .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; flex-wrap: wrap; gap: 14px; }
+  .topbar .brand { display: flex; align-items: center; gap: 10px; font-family: var(--display); font-weight: 700; font-size: 18px; }
+  .topbar .brand .spark { color: var(--accent); }
+  .topbar .brand .badge { font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;
+    background: var(--tag-bg); color: var(--tag-text); border: 1px solid var(--tag-border); padding: 4px 9px; border-radius: 999px; margin-left: 4px; }
+  .topbar .actions { display: flex; gap: 10px; }
+
+  /* tabs */
+  .tabs { display: flex; gap: 4px; background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 5px; margin-bottom: 26px; width: fit-content; }
+  .tab { cursor: pointer; font-weight: 600; font-size: 14px; color: var(--muted); padding: 9px 18px; border-radius: 999px; transition: all .15s; border: none; background: transparent; font-family: var(--body); }
+  .tab:hover { color: var(--text); }
+  .tab.active { background: var(--surface2); color: var(--text); }
+
+  /* stats */
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 28px; }
+  .stat {
+    background: linear-gradient(180deg, var(--surface), rgba(20,21,30,0.5));
+    border: 1px solid var(--border); border-radius: var(--radius); padding: 20px;
+  }
+  .stat .v { font-family: var(--display); font-weight: 700; font-size: 38px; line-height: 1; letter-spacing: -0.02em; }
+  .stat .l { color: var(--muted); font-size: 13px; margin-top: 8px; }
+  .stat.ok .v { color: var(--ok); }
+  .stat.no .v { color: var(--no); }
+  .stat.gold .v { color: var(--accent); }
+
+  /* table */
+  .panel {
+    background: linear-gradient(180deg, var(--surface), rgba(20,21,30,0.5));
+    border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden;
+  }
+  .panel-head { display: flex; align-items: center; justify-content: space-between; padding: 18px 22px; border-bottom: 1px solid var(--border); gap: 12px; flex-wrap: wrap; }
+  .panel-head h2 { font-family: var(--display); font-size: 18px; letter-spacing: -0.01em; }
+  .panel-head .count { color: var(--muted); font-size: 13px; font-weight: 500; }
+  .table-scroll { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th { text-align: left; color: var(--muted); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; padding: 13px 18px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  td { padding: 14px 18px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  tr.row:hover td { background: rgba(255,255,255,0.015); }
+  .pill { display: inline-flex; align-items: center; gap: 5px; font-size: 12.5px; font-weight: 600; padding: 3px 10px; border-radius: 999px; }
+  .pill.yes { background: rgba(125,207,160,0.12); color: var(--ok); }
+  .pill.no { background: rgba(217,138,138,0.12); color: var(--no); }
+  td.name { font-weight: 600; }
+  td .ans-chip { display: inline-block; background: var(--surface2); border: 1px solid var(--border); border-radius: 7px; padding: 2px 8px; font-size: 12.5px; margin: 2px 3px 2px 0; }
+  td.muted { color: var(--muted); }
+  .icon-btn { cursor: pointer; background: transparent; border: 1px solid var(--border-md); border-radius: 8px; width: 32px; height: 32px; display: grid; place-items: center; color: var(--muted); transition: all .15s; }
+  .icon-btn:hover { color: var(--no); border-color: rgba(217,138,138,0.4); background: rgba(217,138,138,0.08); }
+  .icon-btn svg { width: 15px; height: 15px; }
+
+  .empty { text-align: center; padding: 60px 20px; color: var(--muted); }
+  .empty .big { font-size: 40px; margin-bottom: 12px; }
+
+  /* questions manager */
+  .q-list { display: flex; flex-direction: column; }
+  .q-item { display: flex; align-items: center; gap: 14px; padding: 16px 22px; border-bottom: 1px solid var(--border); }
+  .q-item:last-child { border-bottom: none; }
+  .q-grip { color: var(--muted); font-size: 18px; line-height: 1; }
+  .q-main { flex: 1; min-width: 0; }
+  .q-main .q-label { font-weight: 600; font-size: 15px; margin-bottom: 4px; }
+  .q-main .q-meta { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .q-type { font-size: 11.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--accent); background: var(--tag-bg); border: 1px solid var(--tag-border); padding: 2px 8px; border-radius: 999px; }
+  .q-req { font-size: 12px; color: var(--muted); }
+  .q-opts { font-size: 12.5px; color: var(--muted); }
+  .q-actions { display: flex; gap: 8px; }
+
+  /* form / modal */
+  .overlay { position: fixed; inset: 0; z-index: 80; background: rgba(5,6,10,0.7); backdrop-filter: blur(4px); display: grid; place-items: center; padding: 20px; }
+  .modal { width: 100%; max-width: 520px; max-height: 90vh; overflow-y: auto; background: var(--surface); border: 1px solid var(--border-md); border-radius: var(--radius); box-shadow: 0 30px 80px -20px rgba(0,0,0,0.8); }
+  .modal-head { padding: 22px 26px 0; }
+  .modal-head h2 { font-family: var(--display); font-size: 22px; letter-spacing: -0.02em; }
+  .modal-head p { color: var(--muted); font-size: 13.5px; margin-top: 4px; }
+  .modal-body { padding: 22px 26px; }
+  .modal-foot { padding: 0 26px 24px; display: flex; gap: 10px; justify-content: flex-end; }
+  .fgroup { margin-bottom: 18px; }
+  .fgroup label { display: block; font-size: 13.5px; font-weight: 600; margin-bottom: 8px; }
+  .seg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .seg-opt { cursor: pointer; text-align: center; font-size: 13px; font-weight: 600; padding: 10px 6px; border: 1px solid var(--border-md); border-radius: 9px; background: var(--bg); transition: all .14s; }
+  .seg-opt:hover { background: var(--surface2); }
+  .seg-opt.sel { border-color: var(--accent); background: rgba(201,168,124,0.1); color: var(--accent); }
+  textarea.ipt { resize: vertical; min-height: 70px; }
+  .opt-editor { display: flex; flex-direction: column; gap: 8px; }
+  .opt-line { display: flex; gap: 8px; }
+  .opt-line .ipt { margin-bottom: 0; }
+  .opt-line .icon-btn { flex: none; }
+  .add-opt { align-self: flex-start; }
+  .toggle-row { display: flex; align-items: center; justify-content: space-between; background: var(--bg); border: 1px solid var(--border-md); border-radius: var(--radius-sm); padding: 13px 16px; }
+  .toggle-row .t-label { font-size: 14px; font-weight: 600; }
+  .toggle-row .t-label small { display: block; font-weight: 400; color: var(--muted); font-size: 12px; margin-top: 2px; }
+  .switch { position: relative; width: 46px; height: 26px; flex: none; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider { position: absolute; inset: 0; background: var(--surface2); border: 1px solid var(--border-md); border-radius: 999px; cursor: pointer; transition: .2s; }
+  .slider::before { content: ""; position: absolute; width: 18px; height: 18px; left: 3px; top: 3px; background: var(--muted); border-radius: 50%; transition: .2s; }
+  .switch input:checked + .slider { background: rgba(201,168,124,0.25); border-color: var(--accent); }
+  .switch input:checked + .slider::before { transform: translateX(20px); background: var(--accent); }
+
+  .helper-note { font-size: 12.5px; color: var(--muted); background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; margin-top: 4px; }
+  .helper-note code { color: var(--accent); font-family: ui-monospace, monospace; }
+
+  @media (max-width: 720px) {
+    .stats { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 480px) {
+    .seg { grid-template-columns: repeat(2, 1fr); }
+    .topbar .brand .badge { display: none; }
+  }
+</style>
+</head>
+<body>
+  <div class="glow"></div>
+
+  <!-- ===== LOGIN ===== -->
+  <div class="login-wrap" id="loginView">
+    <div class="login-card">
+      <div class="lock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div>
+      <h1>Admin-Login</h1>
+      <p class="sub">Verwaltung Team Event 2026</p>
+      <form id="loginForm">
+        <input class="ipt" type="text" id="user" placeholder="Benutzername" autocomplete="username" />
+        <input class="ipt" type="password" id="pass" placeholder="Passwort" autocomplete="current-password" />
+        <button class="btn btn-primary" type="submit" style="width:100%">Anmelden</button>
+        <div class="login-err" id="loginErr"></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===== APP ===== -->
+  <div class="app hidden" id="appView">
+    <div class="topbar">
+      <div class="brand"><span class="spark">✦</span> Team Event <span class="badge">Admin</span></div>
+      <div class="actions">
+        <a class="btn btn-ghost btn-sm" href="index.html" target="_blank">Anmelde-Seite ansehen</a>
+        <button class="btn btn-ghost btn-sm" id="logoutBtn">Abmelden</button>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" data-tab="responses">Antworten</button>
+      <button class="tab" data-tab="questions">Fragen verwalten</button>
+    </div>
+
+    <!-- TAB: responses -->
+    <div id="tab-responses">
+      <div class="stats">
+        <div class="stat gold"><div class="v" id="st-total">0</div><div class="l">Antworten total</div></div>
+        <div class="stat ok"><div class="v" id="st-yes">0</div><div class="l">Kommen 🎉</div></div>
+        <div class="stat no"><div class="v" id="st-no">0</div><div class="l">Kommen nicht</div></div>
+        <div class="stat"><div class="v" id="st-guests">0</div><div class="l">Begleitpersonen</div></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <div><h2>Alle Antworten</h2></div>
+          <div style="display:flex; gap:10px; align-items:center;">
+            <span class="count" id="respCount"></span>
+            <button class="btn btn-ghost btn-sm" id="csvBtn">⤓ CSV exportieren</button>
+          </div>
+        </div>
+        <div class="table-scroll" id="tableScroll"></div>
+      </div>
+    </div>
+
+    <!-- TAB: questions -->
+    <div id="tab-questions" class="hidden">
+      <div class="panel">
+        <div class="panel-head">
+          <div><h2>Umfrage-Fragen</h2><div class="count">Diese Fragen erscheinen auf der Anmelde-Seite, wenn jemand teilnimmt.</div></div>
+          <button class="btn btn-primary btn-sm" id="addQBtn">+ Neue Frage</button>
+        </div>
+        <div class="q-list" id="qList"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== QUESTION MODAL ===== -->
+  <div class="overlay hidden" id="qModal">
+    <div class="modal">
+      <div class="modal-head">
+        <h2 id="qModalTitle">Neue Frage</h2>
+        <p>Lege fest, was die Teilnehmenden beantworten sollen.</p>
+      </div>
+      <div class="modal-body">
+        <div class="fgroup">
+          <label>Frage / Bezeichnung</label>
+          <input class="ipt" type="text" id="qLabel" placeholder="z.B. Hast du Allergien?" style="margin-bottom:0" />
+        </div>
+        <div class="fgroup">
+          <label>Hilfetext <span style="color:var(--muted);font-weight:400">(optional)</span></label>
+          <input class="ipt" type="text" id="qHelp" placeholder="Kurze Erklärung unter der Frage" style="margin-bottom:0" />
+        </div>
+        <div class="fgroup">
+          <label>Fragetyp</label>
+          <div class="seg" id="qTypeSeg">
+            <div class="seg-opt" data-type="yesno">Ja / Nein</div>
+            <div class="seg-opt" data-type="single">Einzelauswahl</div>
+            <div class="seg-opt" data-type="multi">Mehrfachauswahl</div>
+            <div class="seg-opt" data-type="text">Freitext</div>
+            <div class="seg-opt" data-type="number">Zahl</div>
+          </div>
+        </div>
+        <div class="fgroup hidden" id="qOptsGroup">
+          <label>Antwortoptionen</label>
+          <div class="opt-editor" id="optEditor"></div>
+          <button class="btn btn-ghost btn-sm add-opt" type="button" id="addOptBtn" style="margin-top:8px">+ Option hinzufügen</button>
+        </div>
+        <div class="fgroup">
+          <div class="toggle-row">
+            <div class="t-label">Pflichtfeld <small>Muss beantwortet werden, um abzuschicken</small></div>
+            <label class="switch"><input type="checkbox" id="qRequired" /><span class="slider"></span></label>
+          </div>
+        </div>
+        <div class="login-err" id="qErr" style="text-align:left"></div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-ghost btn-sm" id="qCancel">Abbrechen</button>
+        <button class="btn btn-primary btn-sm" id="qSave">Speichern</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+(function () {
+  "use strict";
+
+  var Q_KEY = "teamevent_questions_v1";
+  var R_KEY = "teamevent_responses_v1";
+  var SESSION = "teamevent_admin_session";
+  var CREDS = { user: "admin", pass: "admin" };
+
+  function load(key, fb) { try { var v = JSON.parse(localStorage.getItem(key)); return v == null ? fb : v; } catch (e) { return fb; } }
+  function save(key, v) { localStorage.setItem(key, JSON.stringify(v)); }
+  function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+
+  var TYPE_LABEL = { yesno: "Ja / Nein", single: "Einzelauswahl", multi: "Mehrfachauswahl", text: "Freitext", number: "Zahl" };
+
+  // ---------- Store: Cloudflare-KV-Backend mit localStorage-Fallback ----------
+  var Store = {
+    remote: false,
+    token: null,
+    init: function () {
+      var self = this;
+      return fetch("/api/questions", { headers: { "Accept": "application/json" } })
+        .then(function (r) { var ct = r.headers.get("content-type") || ""; self.remote = r.ok && ct.indexOf("json") >= 0; })
+        .catch(function () { self.remote = false; })
+        .then(function () { return self.remote; });
+    },
+    login: function (user, pass) {
+      var self = this;
+      if (this.remote) {
+        return fetch("/api/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ user: user, pass: pass }) })
+          .then(function (r) { if (r.ok) { self.token = pass; return true; } return false; })
+          .catch(function () { return false; });
+      }
+      return Promise.resolve(user === CREDS.user && pass === CREDS.pass ? (self.token = pass, true) : false);
+    },
+    auth: function () { return this.token ? { "Authorization": "Bearer " + this.token } : {}; },
+    getQuestions: function () {
+      if (this.remote) return fetch("/api/questions").then(function (r) { return r.ok ? r.json() : []; }).catch(function () { return []; });
+      return Promise.resolve(load(Q_KEY, []));
+    },
+    saveQuestions: function (arr) {
+      if (this.remote) {
+        var h = Object.assign({ "Content-Type": "application/json" }, this.auth());
+        return fetch("/api/questions", { method: "PUT", headers: h, body: JSON.stringify(arr) }).then(function (r) { return r.ok; });
+      }
+      save(Q_KEY, arr); return Promise.resolve(true);
+    },
+    getResponses: function () {
+      if (this.remote) return fetch("/api/responses", { headers: this.auth() }).then(function (r) { return r.ok ? r.json() : []; }).catch(function () { return []; });
+      return Promise.resolve(load(R_KEY, []));
+    },
+    deleteResponse: function (id) {
+      if (this.remote) return fetch("/api/responses?id=" + encodeURIComponent(id), { method: "DELETE", headers: this.auth() }).then(function (r) { return r.ok; });
+      save(R_KEY, load(R_KEY, []).filter(function (r) { return r.id !== id; })); return Promise.resolve(true);
+    }
+  };
+
+  var questionsCache = [];
+  var responsesCache = [];
+
+  // ===== LOGIN =====
+  var loginView = document.getElementById("loginView");
+  var appView = document.getElementById("appView");
+
+  function showApp() { loginView.classList.add("hidden"); appView.classList.remove("hidden"); renderAll(); }
+
+  document.getElementById("loginForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var u = document.getElementById("user").value.trim();
+    var p = document.getElementById("pass").value;
+    var errEl = document.getElementById("loginErr");
+    errEl.textContent = "…";
+    Store.login(u, p).then(function (ok) {
+      if (ok) {
+        sessionStorage.setItem(SESSION, Store.token);
+        errEl.textContent = "";
+        showApp();
+      } else {
+        errEl.textContent = "Falscher Benutzername oder Passwort.";
+      }
+    });
+  });
+  document.getElementById("logoutBtn").addEventListener("click", function () {
+    sessionStorage.removeItem(SESSION);
+    Store.token = null;
+    appView.classList.add("hidden"); loginView.classList.remove("hidden");
+    document.getElementById("user").value = ""; document.getElementById("pass").value = "";
+  });
+
+  // ===== TABS =====
+  document.querySelectorAll(".tab").forEach(function (t) {
+    t.addEventListener("click", function () {
+      document.querySelectorAll(".tab").forEach(function (x) { x.classList.remove("active"); });
+      t.classList.add("active");
+      var tab = t.getAttribute("data-tab");
+      document.getElementById("tab-responses").classList.toggle("hidden", tab !== "responses");
+      document.getElementById("tab-questions").classList.toggle("hidden", tab !== "questions");
+    });
+  });
+
+  // ===== RENDER RESPONSES =====
+  function renderResponses() {
+    Promise.all([Store.getResponses(), Store.getQuestions()]).then(function (res) {
+      responsesCache = res[0] || [];
+      questionsCache = res[1] || [];
+      renderResponsesView(responsesCache, questionsCache);
+    });
+  }
+  function renderResponsesView(responses, questions) {
+    var yes = responses.filter(function (r) { return r.attending === "yes"; }).length;
+    var no = responses.length - yes;
+
+    // count begleitpersonen: any number-type question, sum values
+    var guests = 0;
+    var numberQ = questions.filter(function (q) { return q.type === "number"; });
+    responses.forEach(function (r) {
+      numberQ.forEach(function (q) { var v = parseInt(r.answers && r.answers[q.id], 10); if (!isNaN(v)) guests += v; });
+    });
+
+    document.getElementById("st-total").textContent = responses.length;
+    document.getElementById("st-yes").textContent = yes;
+    document.getElementById("st-no").textContent = no;
+    document.getElementById("st-guests").textContent = guests;
+    document.getElementById("respCount").textContent = responses.length + (responses.length === 1 ? " Eintrag" : " Einträge");
+
+    var scroll = document.getElementById("tableScroll");
+    if (!responses.length) {
+      scroll.innerHTML = '<div class="empty"><div class="big">📭</div>Noch keine Antworten.<br/>Sobald sich jemand anmeldet, erscheint die Antwort hier.</div>';
+      return;
+    }
+
+    var headCols = '<th>Name</th><th>Teilnahme</th>';
+    questions.forEach(function (q) { headCols += '<th>' + esc(q.label) + '</th>'; });
+    headCols += '<th>Kommentar</th><th>Zeit</th><th></th>';
+
+    var rows = responses.slice().sort(function (a, b) { return b.ts - a.ts; }).map(function (r) {
+      var cells = '<td class="name">' + esc(r.name) + '</td>';
+      cells += '<td>' + (r.attending === "yes"
+        ? '<span class="pill yes">Ja</span>'
+        : '<span class="pill no">Nein</span>') + '</td>';
+      questions.forEach(function (q) {
+        var v = r.answers && r.answers[q.id];
+        if (v == null || v === "" || (Array.isArray(v) && !v.length)) {
+          cells += '<td class="muted">–</td>';
+        } else if (Array.isArray(v)) {
+          cells += '<td>' + v.map(function (x) { return '<span class="ans-chip">' + esc(x) + '</span>'; }).join("") + '</td>';
+        } else {
+          cells += '<td><span class="ans-chip">' + esc(v) + '</span></td>';
+        }
+      });
+      cells += '<td class="muted">' + (r.comment ? esc(r.comment) : "–") + '</td>';
+      cells += '<td class="muted">' + fmtDate(r.ts) + '</td>';
+      cells += '<td><button class="icon-btn" data-del="' + r.id + '" title="Löschen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2m2 0v14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V6"/></svg></button></td>';
+      return '<tr class="row">' + cells + '</tr>';
+    }).join("");
+
+    scroll.innerHTML = '<table><thead><tr>' + headCols + '</tr></thead><tbody>' + rows + '</tbody></table>';
+
+    scroll.querySelectorAll("[data-del]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        if (!confirm("Diesen Eintrag wirklich löschen?")) return;
+        var id = btn.getAttribute("data-del");
+        Store.deleteResponse(id).then(function () { renderResponses(); });
+      });
+    });
+  }
+
+  function fmtDate(ts) {
+    var d = new Date(ts);
+    function p(n) { return (n < 10 ? "0" : "") + n; }
+    return p(d.getDate()) + "." + p(d.getMonth() + 1) + ". " + p(d.getHours()) + ":" + p(d.getMinutes());
+  }
+
+  // ===== CSV EXPORT =====
+  document.getElementById("csvBtn").addEventListener("click", function () {
+    var responses = responsesCache;
+    var questions = questionsCache;
+    if (!responses.length) { alert("Keine Antworten zum Exportieren."); return; }
+    var header = ["Name", "Teilnahme"].concat(questions.map(function (q) { return q.label; })).concat(["Kommentar", "Zeit"]);
+    function cell(s) { s = String(s == null ? "" : s); return '"' + s.replace(/"/g, '""') + '"'; }
+    var lines = [header.map(cell).join(",")];
+    responses.slice().sort(function (a, b) { return a.ts - b.ts; }).forEach(function (r) {
+      var row = [r.name, r.attending === "yes" ? "Ja" : "Nein"];
+      questions.forEach(function (q) {
+        var v = r.answers && r.answers[q.id];
+        if (Array.isArray(v)) v = v.join("; ");
+        row.push(v == null ? "" : v);
+      });
+      row.push(r.comment || "");
+      row.push(new Date(r.ts).toLocaleString("de-CH"));
+      lines.push(row.map(cell).join(","));
+    });
+    var csv = "\uFEFF" + lines.join("\r\n"); // BOM for Excel umlauts
+    var blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url; a.download = "team-event-antworten.csv";
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+
+  // ===== RENDER QUESTIONS =====
+  function renderQuestions() {
+    Store.getQuestions().then(function (qs) {
+      questionsCache = qs || [];
+      renderQuestionsView(questionsCache);
+    });
+  }
+  function renderQuestionsView(questions) {
+    var list = document.getElementById("qList");
+    if (!questions.length) {
+      list.innerHTML = '<div class="empty"><div class="big">❓</div>Noch keine eigenen Fragen.<br/>Füge eine hinzu — z.B. Allergien oder ÖV-Abo.</div>';
+      return;
+    }
+    list.innerHTML = questions.map(function (q, i) {
+      var optsTxt = (q.type === "single" || q.type === "multi") && q.options && q.options.length
+        ? '<span class="q-opts">· ' + q.options.map(esc).join(", ") + '</span>' : "";
+      return '<div class="q-item">' +
+        '<div class="q-grip">⋮⋮</div>' +
+        '<div class="q-main">' +
+          '<div class="q-label">' + esc(q.label) + '</div>' +
+          '<div class="q-meta"><span class="q-type">' + TYPE_LABEL[q.type] + '</span>' +
+            (q.required ? '<span class="q-req">Pflichtfeld</span>' : '<span class="q-req">optional</span>') +
+            optsTxt +
+          '</div>' +
+        '</div>' +
+        '<div class="q-actions">' +
+          '<button class="btn btn-ghost btn-sm" data-edit="' + q.id + '">Bearbeiten</button>' +
+          '<button class="icon-btn" data-delq="' + q.id + '" title="Löschen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2m2 0v14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V6"/></svg></button>' +
+        '</div>' +
+      '</div>';
+    }).join("");
+
+    list.querySelectorAll("[data-edit]").forEach(function (b) {
+      b.addEventListener("click", function () { openQModal(b.getAttribute("data-edit")); });
+    });
+    list.querySelectorAll("[data-delq]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        if (!confirm("Diese Frage löschen? Bereits gegebene Antworten bleiben gespeichert.")) return;
+        var id = b.getAttribute("data-delq");
+        Store.saveQuestions(questions.filter(function (q) { return q.id !== id; })).then(function () { renderQuestions(); renderResponses(); });
+      });
+    });
+  }
+
+  // ===== QUESTION MODAL =====
+  var qModal = document.getElementById("qModal");
+  var editingId = null;
+  var curType = "single";
+
+  function openQModal(id) {
+    editingId = id || null;
+    var q = null;
+    if (id) { q = questionsCache.find(function (x) { return x.id === id; }); }
+    document.getElementById("qModalTitle").textContent = id ? "Frage bearbeiten" : "Neue Frage";
+    document.getElementById("qLabel").value = q ? q.label : "";
+    document.getElementById("qHelp").value = q ? (q.help || "") : "";
+    document.getElementById("qRequired").checked = q ? !!q.required : false;
+    setType(q ? q.type : "single");
+    renderOptEditor(q && q.options ? q.options.slice() : ["", ""]);
+    document.getElementById("qErr").textContent = "";
+    qModal.classList.remove("hidden");
+  }
+  function closeQModal() { qModal.classList.add("hidden"); }
+
+  function setType(type) {
+    curType = type;
+    document.querySelectorAll("#qTypeSeg .seg-opt").forEach(function (o) {
+      o.classList.toggle("sel", o.getAttribute("data-type") === type);
+    });
+    var needsOpts = (type === "single" || type === "multi");
+    document.getElementById("qOptsGroup").classList.toggle("hidden", !needsOpts);
+  }
+  document.querySelectorAll("#qTypeSeg .seg-opt").forEach(function (o) {
+    o.addEventListener("click", function () { setType(o.getAttribute("data-type")); });
+  });
+
+  function renderOptEditor(opts) {
+    var ed = document.getElementById("optEditor");
+    ed.innerHTML = "";
+    (opts.length ? opts : [""]).forEach(function (val) { addOptLine(val); });
+  }
+  function addOptLine(val) {
+    var ed = document.getElementById("optEditor");
+    var line = document.createElement("div");
+    line.className = "opt-line";
+    line.innerHTML = '<input class="ipt" type="text" value="' + esc(val) + '" placeholder="Option…" />' +
+      '<button class="icon-btn" type="button" title="Entfernen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/></svg></button>';
+    line.querySelector(".icon-btn").addEventListener("click", function () { line.remove(); });
+    ed.appendChild(line);
+  }
+  document.getElementById("addOptBtn").addEventListener("click", function () { addOptLine(""); });
+  document.getElementById("qCancel").addEventListener("click", closeQModal);
+  qModal.addEventListener("click", function (e) { if (e.target === qModal) closeQModal(); });
+
+  document.getElementById("qSave").addEventListener("click", function () {
+    var label = document.getElementById("qLabel").value.trim();
+    var err = document.getElementById("qErr");
+    if (!label) { err.textContent = "Bitte gib eine Frage ein."; return; }
+    var options = [];
+    if (curType === "single" || curType === "multi") {
+      document.querySelectorAll("#optEditor .opt-line .ipt").forEach(function (inp) {
+        var v = inp.value.trim(); if (v) options.push(v);
+      });
+      if (options.length < 2) { err.textContent = "Bitte mindestens zwei Optionen angeben."; return; }
+    }
+    var questions = questionsCache.slice();
+    var data = {
+      label: label,
+      help: document.getElementById("qHelp").value.trim(),
+      type: curType,
+      options: options,
+      required: document.getElementById("qRequired").checked
+    };
+    if (editingId) {
+      var i = questions.findIndex(function (q) { return q.id === editingId; });
+      if (i >= 0) { data.id = editingId; questions[i] = data; }
+    } else {
+      data.id = uid(); questions.push(data);
+    }
+    Store.saveQuestions(questions).then(function () {
+      closeQModal(); renderQuestions(); renderResponses();
+    });
+  });
+
+  document.getElementById("addQBtn").addEventListener("click", function () { openQModal(null); });
+
+  // ===== INIT / BOOTSTRAP =====
+  function renderAll() { renderResponses(); renderQuestions(); }
+
+  Store.init().then(function () {
+    var saved = sessionStorage.getItem(SESSION);
+    if (saved) { Store.token = saved; showApp(); }
+  });
+})();
+</script>
+</body>
+</html>
