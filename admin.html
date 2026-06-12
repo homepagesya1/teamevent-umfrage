@@ -231,6 +231,7 @@
     <div class="tabs">
       <button class="tab active" data-tab="responses">Antworten</button>
       <button class="tab" data-tab="questions">Fragen verwalten</button>
+      <button class="tab" data-tab="eventinfo">Event-Infos</button>
     </div>
 
     <!-- TAB: responses -->
@@ -262,6 +263,46 @@
           <button class="btn btn-primary btn-sm" id="addQBtn">+ Neue Frage</button>
         </div>
         <div class="q-list" id="qList"></div>
+      </div>
+    </div>
+
+    <!-- TAB: event info -->
+    <div id="tab-eventinfo" class="hidden">
+      <div class="panel">
+        <div class="panel-head">
+          <div><h2>Event-Infos</h2><div class="count">Diese Einträge erscheinen als Liste auf der Anmelde-Seite (z.B. Ort, Anreise, Dresscode).</div></div>
+          <button class="btn btn-primary btn-sm" id="addEiBtn">+ Neuer Eintrag</button>
+        </div>
+        <div class="q-list" id="eiList"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== EVENT INFO MODAL ===== -->
+  <div class="overlay hidden" id="eiModal">
+    <div class="modal">
+      <div class="modal-head">
+        <h2 id="eiModalTitle">Neuer Eintrag</h2>
+        <p>Erscheint als Karte in der Liste „Gut zu wissen“.</p>
+      </div>
+      <div class="modal-body">
+        <div class="fgroup">
+          <label>Icon <span style="color:var(--muted);font-weight:400">(Emoji)</span></label>
+          <input class="ipt" type="text" id="eiIcon" placeholder="z.B. 📍" maxlength="4" style="margin-bottom:0; max-width:90px" />
+        </div>
+        <div class="fgroup">
+          <label>Titel</label>
+          <input class="ipt" type="text" id="eiTitle" placeholder="z.B. Treffpunkt" style="margin-bottom:0" />
+        </div>
+        <div class="fgroup">
+          <label>Text</label>
+          <textarea class="ipt" id="eiText" placeholder="Beschreibung / Details…" style="margin-bottom:0"></textarea>
+        </div>
+        <div class="login-err" id="eiErr" style="text-align:left"></div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-ghost btn-sm" id="eiCancel">Abbrechen</button>
+        <button class="btn btn-primary btn-sm" id="eiSave">Speichern</button>
       </div>
     </div>
   </div>
@@ -318,6 +359,7 @@
 
   var Q_KEY = "teamevent_questions_v1";
   var R_KEY = "teamevent_responses_v1";
+  var EI_KEY = "teamevent_eventinfo_v1";
   var SESSION = "teamevent_admin_session";
   var CREDS = { user: "admin", pass: "admin" };
 
@@ -367,6 +409,17 @@
     deleteResponse: function (id) {
       if (this.remote) return fetch("/api/responses?id=" + encodeURIComponent(id), { method: "DELETE", headers: this.auth() }).then(function (r) { return r.ok; });
       save(R_KEY, load(R_KEY, []).filter(function (r) { return r.id !== id; })); return Promise.resolve(true);
+    },
+    getEventInfo: function () {
+      if (this.remote) return fetch("/api/eventinfo").then(function (r) { return r.ok ? r.json() : []; }).catch(function () { return []; });
+      return Promise.resolve(load(EI_KEY, []));
+    },
+    saveEventInfo: function (arr) {
+      if (this.remote) {
+        var h = Object.assign({ "Content-Type": "application/json" }, this.auth());
+        return fetch("/api/eventinfo", { method: "PUT", headers: h, body: JSON.stringify(arr) }).then(function (r) { return r.ok; });
+      }
+      save(EI_KEY, arr); return Promise.resolve(true);
     }
   };
 
@@ -410,6 +463,7 @@
       var tab = t.getAttribute("data-tab");
       document.getElementById("tab-responses").classList.toggle("hidden", tab !== "responses");
       document.getElementById("tab-questions").classList.toggle("hidden", tab !== "questions");
+      document.getElementById("tab-eventinfo").classList.toggle("hidden", tab !== "eventinfo");
     });
   });
 
@@ -640,8 +694,93 @@
 
   document.getElementById("addQBtn").addEventListener("click", function () { openQModal(null); });
 
+  // ===== RENDER EVENT INFO =====
+  var eventInfoCache = [];
+
+  function renderEventInfo() {
+    Store.getEventInfo().then(function (items) {
+      eventInfoCache = items || [];
+      renderEventInfoView(eventInfoCache);
+    });
+  }
+  function renderEventInfoView(items) {
+    var list = document.getElementById("eiList");
+    if (!items.length) {
+      list.innerHTML = '<div class="empty"><div class="big">ℹ️</div>Noch keine Infos.<br/>Füge Einträge hinzu — z.B. Ort, Anreise oder Dresscode.</div>';
+      return;
+    }
+    list.innerHTML = items.map(function (it) {
+      return '<div class="q-item">' +
+        '<div class="q-grip">' + esc(it.icon || "✦") + '</div>' +
+        '<div class="q-main">' +
+          '<div class="q-label">' + esc(it.title) + '</div>' +
+          '<div class="q-meta"><span class="q-opts">' + esc(it.text) + '</span></div>' +
+        '</div>' +
+        '<div class="q-actions">' +
+          '<button class="btn btn-ghost btn-sm" data-editei="' + it.id + '">Bearbeiten</button>' +
+          '<button class="icon-btn" data-delei="' + it.id + '" title="Löschen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2m2 0v14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V6"/></svg></button>' +
+        '</div>' +
+      '</div>';
+    }).join("");
+
+    list.querySelectorAll("[data-editei]").forEach(function (b) {
+      b.addEventListener("click", function () { openEiModal(b.getAttribute("data-editei")); });
+    });
+    list.querySelectorAll("[data-delei]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        if (!confirm("Diesen Eintrag löschen?")) return;
+        var id = b.getAttribute("data-delei");
+        Store.saveEventInfo(eventInfoCache.filter(function (it) { return it.id !== id; })).then(function () { renderEventInfo(); });
+      });
+    });
+  }
+
+  // ===== EVENT INFO MODAL =====
+  var eiModal = document.getElementById("eiModal");
+  var editingEiId = null;
+
+  function openEiModal(id) {
+    editingEiId = id || null;
+    var it = id ? eventInfoCache.find(function (x) { return x.id === id; }) : null;
+    document.getElementById("eiModalTitle").textContent = id ? "Eintrag bearbeiten" : "Neuer Eintrag";
+    document.getElementById("eiIcon").value = it ? (it.icon || "") : "";
+    document.getElementById("eiTitle").value = it ? it.title : "";
+    document.getElementById("eiText").value = it ? it.text : "";
+    document.getElementById("eiErr").textContent = "";
+    eiModal.classList.remove("hidden");
+  }
+  function closeEiModal() { eiModal.classList.add("hidden"); }
+
+  document.getElementById("eiCancel").addEventListener("click", closeEiModal);
+  eiModal.addEventListener("click", function (e) { if (e.target === eiModal) closeEiModal(); });
+
+  document.getElementById("eiSave").addEventListener("click", function () {
+    var title = document.getElementById("eiTitle").value.trim();
+    var text = document.getElementById("eiText").value.trim();
+    var err = document.getElementById("eiErr");
+    if (!title) { err.textContent = "Bitte gib einen Titel ein."; return; }
+    if (!text) { err.textContent = "Bitte gib einen Text ein."; return; }
+    var items = eventInfoCache.slice();
+    var data = {
+      icon: document.getElementById("eiIcon").value.trim(),
+      title: title,
+      text: text
+    };
+    if (editingEiId) {
+      var i = items.findIndex(function (x) { return x.id === editingEiId; });
+      if (i >= 0) { data.id = editingEiId; items[i] = data; }
+    } else {
+      data.id = uid(); items.push(data);
+    }
+    Store.saveEventInfo(items).then(function () {
+      closeEiModal(); renderEventInfo();
+    });
+  });
+
+  document.getElementById("addEiBtn").addEventListener("click", function () { openEiModal(null); });
+
   // ===== INIT / BOOTSTRAP =====
-  function renderAll() { renderResponses(); renderQuestions(); }
+  function renderAll() { renderResponses(); renderQuestions(); renderEventInfo(); }
 
   Store.init().then(function () {
     var saved = sessionStorage.getItem(SESSION);
