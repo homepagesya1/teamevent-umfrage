@@ -150,6 +150,14 @@
   .q-item { display: flex; align-items: center; gap: 14px; padding: 16px 22px; border-bottom: 1px solid var(--border); }
   .q-item:last-child { border-bottom: none; }
   .q-grip { color: var(--muted); font-size: 18px; line-height: 1; }
+  .order-col { display: flex; flex-direction: column; gap: 4px; flex: none; }
+  .order-btn {
+    cursor: pointer; background: transparent; border: 1px solid var(--border-md); border-radius: 6px;
+    width: 26px; height: 20px; display: grid; place-items: center; color: var(--muted); transition: all .15s;
+  }
+  .order-btn:hover { color: var(--text); background: var(--surface2); }
+  .order-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+  .order-btn svg { width: 12px; height: 12px; }
   .q-main { flex: 1; min-width: 0; }
   .q-main .q-label { font-weight: 600; font-size: 15px; margin-bottom: 4px; }
   .q-main .q-meta { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
@@ -585,7 +593,10 @@
       var optsTxt = (q.type === "single" || q.type === "multi") && q.options && q.options.length
         ? '<span class="q-opts">· ' + q.options.map(esc).join(", ") + '</span>' : "";
       return '<div class="q-item">' +
-        '<div class="q-grip">⋮⋮</div>' +
+        '<div class="order-col">' +
+          '<button class="order-btn" data-upq="' + q.id + '" title="Nach oben"' + (i === 0 ? " disabled" : "") + '><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 15l-6-6-6 6"/></svg></button>' +
+          '<button class="order-btn" data-downq="' + q.id + '" title="Nach unten"' + (i === questions.length - 1 ? " disabled" : "") + '><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></button>' +
+        '</div>' +
         '<div class="q-main">' +
           '<div class="q-label">' + esc(q.label) + '</div>' +
           '<div class="q-meta"><span class="q-type">' + TYPE_LABEL[q.type] + '</span>' +
@@ -610,6 +621,22 @@
         Store.saveQuestions(questions.filter(function (q) { return q.id !== id; })).then(function () { renderQuestions(); renderResponses(); });
       });
     });
+    list.querySelectorAll("[data-upq]").forEach(function (b) {
+      b.addEventListener("click", function () { moveItem(questions, b.getAttribute("data-upq"), -1, function (arr) { Store.saveQuestions(arr).then(function () { renderQuestions(); }); }); });
+    });
+    list.querySelectorAll("[data-downq]").forEach(function (b) {
+      b.addEventListener("click", function () { moveItem(questions, b.getAttribute("data-downq"), 1, function (arr) { Store.saveQuestions(arr).then(function () { renderQuestions(); }); }); });
+    });
+  }
+
+  // ===== REORDERING HELPER =====
+  function moveItem(list, id, dir, onSave) {
+    var arr = list.slice();
+    var i = arr.findIndex(function (x) { return x.id === id; });
+    var j = i + dir;
+    if (i < 0 || j < 0 || j >= arr.length) return;
+    var tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+    onSave(arr);
   }
 
   // ===== QUESTION MODAL =====
@@ -709,8 +736,12 @@
       list.innerHTML = '<div class="empty"><div class="big">ℹ️</div>Noch keine Infos.<br/>Füge Einträge hinzu — z.B. Ort, Anreise oder Dresscode.</div>';
       return;
     }
-    list.innerHTML = items.map(function (it) {
+    list.innerHTML = items.map(function (it, i) {
       return '<div class="q-item">' +
+        '<div class="order-col">' +
+          '<button class="order-btn" data-upei="' + it.id + '" title="Nach oben"' + (i === 0 ? " disabled" : "") + '><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 15l-6-6-6 6"/></svg></button>' +
+          '<button class="order-btn" data-downei="' + it.id + '" title="Nach unten"' + (i === items.length - 1 ? " disabled" : "") + '><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></button>' +
+        '</div>' +
         '<div class="q-grip">' + esc(it.icon || "✦") + '</div>' +
         '<div class="q-main">' +
           '<div class="q-label">' + esc(it.title) + '</div>' +
@@ -732,6 +763,12 @@
         var id = b.getAttribute("data-delei");
         Store.saveEventInfo(eventInfoCache.filter(function (it) { return it.id !== id; })).then(function () { renderEventInfo(); });
       });
+    });
+    list.querySelectorAll("[data-upei]").forEach(function (b) {
+      b.addEventListener("click", function () { moveItem(items, b.getAttribute("data-upei"), -1, function (arr) { Store.saveEventInfo(arr).then(function () { renderEventInfo(); }); }); });
+    });
+    list.querySelectorAll("[data-downei]").forEach(function (b) {
+      b.addEventListener("click", function () { moveItem(items, b.getAttribute("data-downei"), 1, function (arr) { Store.saveEventInfo(arr).then(function () { renderEventInfo(); }); }); });
     });
   }
 
