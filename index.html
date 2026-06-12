@@ -498,9 +498,11 @@
           <div id="dynamicQuestions"></div>
         </div>
 
-        <div class="field" id="commentField">
-          <label class="flabel" for="comment">Kommentar <span style="color:var(--muted);font-weight:400">(optional)</span></label>
-          <textarea id="comment" name="comment" placeholder="Wünsche, Fragen oder ein Gruss…"></textarea>
+        <div class="reveal" id="commentWrap" style="max-height:0; opacity:0;">
+          <div class="field" id="commentField">
+            <label class="flabel" for="comment">Kommentar <span style="color:var(--muted);font-weight:400">(optional)</span></label>
+            <textarea id="comment" name="comment" placeholder="Wünsche, Fragen oder ein Gruss…"></textarea>
+          </div>
         </div>
 
         <div class="divider"></div>
@@ -654,6 +656,8 @@
 
   var dynWrap = document.getElementById("dynamicWrap");
   var dynQ = document.getElementById("dynamicQuestions");
+  var commentWrap = document.getElementById("commentWrap");
+  var commentField = document.getElementById("commentField");
 
   // ---------- render dynamic questions ----------
   function checkSvg() {
@@ -753,6 +757,18 @@
     } else {
       dynWrap.style.maxHeight = "0";
       dynWrap.style.opacity = "0";
+      dynWrap.style.marginBottom = "";
+    }
+
+    // Kommentarfeld erst einblenden, wenn eine Auswahl getroffen wurde
+    if (val) {
+      commentWrap.style.maxHeight = commentField.scrollHeight + 30 + "px";
+      commentWrap.style.opacity = "1";
+      commentWrap.style.marginBottom = "0";
+    } else {
+      commentWrap.style.maxHeight = "0";
+      commentWrap.style.opacity = "0";
+      commentWrap.style.marginBottom = "";
     }
   }
   attendOpts.forEach(function (o) {
